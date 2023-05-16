@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { db } from "../database/database.connection.js";
+import { v4 as uuid } from "uuid";
 
 export async function signup(req, res) {
     const { name, email, password } = req.body;
@@ -8,7 +9,7 @@ export async function signup(req, res) {
 
     try {
 
-        await db.query(`INSERT INTO users (name, email, password, "confirmPassword") VALUES ($1, $2, $3, $4)`, [name, email, hash, hash]);
+        await db.query(`INSERT INTO users (name, email, password, "confirmPassword") VALUES ($1, $2, $3, $4);`, [name, email, hash, hash]);
 
         res.sendStatus(201);
 
@@ -19,5 +20,14 @@ export async function signup(req, res) {
 
 
 export async function login(req, res) {
+
+    try {
+        const token = uuid();
+        await db.query(`INSERT INTO tokens (token) VALUES ($1);`, [token]);
+
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 
 }
