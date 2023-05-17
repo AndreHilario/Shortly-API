@@ -29,13 +29,29 @@ export async function postShortUrl(req, res) {
 
 export async function getUrlById(req, res) {
 
-    const { id } = req.params;
+    const { getUrl } = res.locals;
 
     try {
-        const getUrl = await db.query(`SELECT * FROM urls WHERE id=$1;`, [id]);
-        if (getUrl.rowCount === 0) return res.sendStatus(404);
+        res.send(getUrl);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+}
 
-        res.send(getUrl.rows[0]);
+export async function getAndOpenUrls(req, res) {
+
+    const { getUrl } = res.locals;
+    const { shortUrl } = req.params;
+
+    try {
+
+        await db.query(`
+        UPDATE urls 
+            SET "visitCount" = "visitCount" + 1
+            WHERE "shortUrl" = $1
+        ;`, [shortUrl]);
+
+        res.redirect(getUrl.url);
     } catch (err) {
         res.status(500).send(err.message);
     }
