@@ -21,9 +21,11 @@ export async function signup(req, res) {
 
 export async function login(req, res) {
 
+    const { user } = res.locals;
+
     try {
         const token = uuid();
-        await db.query(`INSERT INTO tokens (token) VALUES ($1);`, [token]);
+        await db.query(`INSERT INTO tokens (token, "userId") VALUES ($1, $2);`, [token, user]);
 
         res.sendStatus(200);
     } catch (err) {

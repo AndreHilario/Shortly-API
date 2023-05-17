@@ -22,6 +22,8 @@ export async function validateLogin(req, res, next) {
     const comparePassword = bcrypt.compareSync(password, user.rows[0].password);
     if (!comparePassword) return res.status(401).send({ message: "User unauthorized" });
 
+    res.locals.user = user.rows[0].id;
+
     next();
 
 }
@@ -38,6 +40,7 @@ export async function authValidation(req, res, next) {
         const validateToken = await db.query(`SELECT * FROM tokens WHERE token = $1;`, [token]);
         if (validateToken.rowCount === 0) return res.status(401).send({ message: "User unauthorized" });
 
+        res.locals.userId = validateToken.rows[0].userId;
         next();
     } catch (err) {
         res.status(500).send(err.message);
