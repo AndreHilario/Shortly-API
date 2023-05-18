@@ -27,7 +27,7 @@ export async function login(req, res) {
         const token = uuid();
         await db.query(`INSERT INTO sessions (token, "userId") VALUES ($1, $2);`, [token, user]);
 
-        res.sendStatus(200);
+        res.status(200).send({ token });
     } catch (err) {
         res.status(500).send(err.message);
     }
