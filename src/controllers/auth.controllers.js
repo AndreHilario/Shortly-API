@@ -25,7 +25,7 @@ export async function login(req, res) {
 
     try {
         const token = uuid();
-        await db.query(`INSERT INTO tokens (token, "userId") VALUES ($1, $2);`, [token, user]);
+        await db.query(`INSERT INTO sessions (token, "userId") VALUES ($1, $2);`, [token, user]);
 
         res.sendStatus(200);
     } catch (err) {

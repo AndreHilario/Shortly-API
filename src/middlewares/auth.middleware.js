@@ -37,7 +37,7 @@ export async function authValidation(req, res, next) {
 
         const token = authorization.replace("Bearer ", "");
 
-        const validateToken = await db.query(`SELECT * FROM tokens WHERE token = $1;`, [token]);
+        const validateToken = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
         if (validateToken.rowCount === 0) return res.status(401).send({ message: "User unauthorized" });
 
         res.locals.userId = validateToken.rows[0].userId;
