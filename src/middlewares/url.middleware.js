@@ -17,6 +17,16 @@ export async function validateShortUrl(req, res, next) {
 
         res.locals.getUrl = getUrl.rows[0];
     }
-    
+
+    next();
+}
+
+export async function validateDeleteUrls(req, res, next) {
+
+    const { userId } = res.locals;
+
+    const result = await db.query(`SELECT * FROM urls WHERE "userId" = $1;`, [userId]);
+    if (result.rowCount === 0) return res.sendStatus(401);
+
     next();
 }

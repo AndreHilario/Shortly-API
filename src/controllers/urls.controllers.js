@@ -66,12 +66,8 @@ export async function getAndOpenUrls(req, res) {
 export async function deleteUrls(req, res) {
 
     const { id } = req.params;
-    const { userId } = res.locals;
 
     try {
-        const result = await db.query(`SELECT * FROM urls WHERE "userId" = $1;`, [userId]);
-        if (result.rowCount === 0) return res.sendStatus(401);
-
         await db.query(`DELETE FROM urls WHERE id = $1;`, [id]);
         res.sendStatus(204);
     } catch (err) {
