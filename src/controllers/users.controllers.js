@@ -2,42 +2,41 @@ import { db } from "../database/database.connection.js";
 
 
 export async function getUsers(req, res) {
-
     const { userId } = res.locals;
 
     try {
-
         const userInfos = await db.query(
             `
-                SELECT users.id AS user_id, users.name AS user_name, 
-                    urls.id AS url_id, urls."shortUrl", urls.url, SUM(urls."visitCount") AS url_visit_count
-                FROM urls
-                JOIN users 
-                    ON urls."userId" = users.id
-                WHERE users.id = $1
-                GROUP BY users.id, users.name, urls.id;
-            `, [userId]);
+        SELECT users.id AS user_id, users.name AS user_name, 
+          urls.id AS url_id, urls."shortUrl", urls.url, 
+          (SELECT SUM("visitCount") FROM urls WHERE "userId" = $1) AS url_visit_count
+        FROM users
+        LEFT JOIN urls ON users.id = urls."userId"
+        WHERE users.id = $1
+        GROUP BY users.id, users.name, urls.id;
+        `,
+            [userId]
+        );
 
         const correctUserInfos = {
-            id: userInfos.rows[0].user_id,
-            name: userInfos.rows[0].user_name,
-            visitCount: 0,
+            id: userInfos.rows[0]?.user_id,
+            name: userInfos.rows[0]?.user_name,
+            visitCount: Number(userInfos.rows[0]?.url_visit_count) || 0,
             shortenedUrls: []
         };
-
-        userInfos.rows.forEach((row) => {
-            correctUserInfos.visitCount += Number(row.url_visit_count);
-            correctUserInfos.shortenedUrls.push({
-                id: row.url_id,
-                shortUrl: row.shortUrl,
-                url: row.url,
-                visitCount: Number(row.url_visit_count)
+        if (userInfos.rowCount > 0) {
+            userInfos.rows.forEach((row) => {
+                correctUserInfos.shortenedUrls.push({
+                    id: row.url_id,
+                    shortUrl: row.shortUrl,
+                    url: row.url,
+                    visitCount: Number(row.url_visit_count)
+                });
             });
-        });
+        }
 
 
         res.status(200).send(correctUserInfos);
-
     } catch (err) {
         res.status(500).send(err.message);
     }
