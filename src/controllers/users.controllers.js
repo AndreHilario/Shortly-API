@@ -3,7 +3,6 @@ import { db } from "../database/database.connection.js";
 
 export async function getUsers(req, res) {
     const { userId } = res.locals;
-    console.log(userId)
 
     try {
         const userInfos = await db.query(
@@ -29,7 +28,7 @@ export async function getUsers(req, res) {
             `,
             [userId]
         );
-        console.log(userInfos)
+        
         const correctUserInfos = {
             id: userInfos.rows[0]?.user_id,
             name: userInfos.rows[0]?.user_name,
@@ -47,7 +46,7 @@ export async function getUsers(req, res) {
                 });
             });
         }
-        console.log(userInfos)
+        
         res.status(200).send(correctUserInfos);
     } catch (err) {
         res.status(500).send(err.message);

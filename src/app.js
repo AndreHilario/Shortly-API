@@ -5,7 +5,7 @@ import router from "./routes/index.routes.js";
 const app = express();
 
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: "https://projeto17-shortly-front-eta.vercel.app/",
     credentials: true,            //access-control-allow-credentials:true
     optionSuccessStatus: 200
 };
