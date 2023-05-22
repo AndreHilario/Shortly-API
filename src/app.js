@@ -10,6 +10,11 @@ const corsOptions = {
     optionSuccessStatus: 200
 };
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://projeto17-shortly-front-eta.vercel.app');
+    next();
+  });
+  
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(router);
