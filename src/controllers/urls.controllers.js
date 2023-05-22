@@ -57,6 +57,8 @@ export async function getAndOpenUrls(req, res) {
             WHERE "shortUrl" = $1
         ;`, [shortUrl]);
 
+        getUrl.visitCount += 1
+
         res.redirect(getUrl.url);
     } catch (err) {
         res.status(500).send(err.message);

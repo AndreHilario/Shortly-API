@@ -4,7 +4,11 @@ import router from "./routes/index.routes.js";
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+    origin: "localhost:3000"
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(router);
 
