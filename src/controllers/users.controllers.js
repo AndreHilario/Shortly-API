@@ -3,27 +3,40 @@ import { db } from "../database/database.connection.js";
 
 export async function getUsers(req, res) {
     const { userId } = res.locals;
+    console.log(userId)
 
     try {
         const userInfos = await db.query(
             `
-        SELECT users.id AS user_id, users.name AS user_name, 
-          urls.id AS url_id, urls."shortUrl", urls.url, 
-          (SELECT SUM("visitCount") FROM urls WHERE "userId" = $1) AS url_visit_count
-        FROM users
-        LEFT JOIN urls ON users.id = urls."userId"
-        WHERE users.id = $1
-        GROUP BY users.id, users.name, urls.id;
-        `,
+            SELECT
+                users.id AS user_id,
+                users.name AS user_name,
+                urls.id AS url_id,
+                urls."shortUrl",
+                urls.url,
+                urls."visitCount" AS url_visit_count,
+                SUM(urls."visitCount") OVER (PARTITION BY users.id) AS total_visit_count
+            FROM
+                users
+            LEFT JOIN
+                urls ON users.id = urls."userId"
+            WHERE
+                users.id = $1
+            GROUP BY
+                users.id,
+                users.name,
+                urls.id;
+            `,
             [userId]
         );
-
+        console.log(userInfos)
         const correctUserInfos = {
             id: userInfos.rows[0]?.user_id,
             name: userInfos.rows[0]?.user_name,
-            visitCount: Number(userInfos.rows[0]?.url_visit_count) || 0,
+            visitCount: Number(userInfos.rows[0]?.total_visit_count) || 0,
             shortenedUrls: []
         };
+
         if (userInfos.rowCount > 0) {
             userInfos.rows.forEach((row) => {
                 correctUserInfos.shortenedUrls.push({
@@ -34,8 +47,7 @@ export async function getUsers(req, res) {
                 });
             });
         }
-
-
+        console.log(userInfos)
         res.status(200).send(correctUserInfos);
     } catch (err) {
         res.status(500).send(err.message);

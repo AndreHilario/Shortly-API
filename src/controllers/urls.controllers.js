@@ -47,23 +47,14 @@ export async function getUrlById(req, res) {
 export async function getAndOpenUrls(req, res) {
 
     const { getUrl } = res.locals;
-    const { shortUrl } = req.params;
 
     try {
-        const result = await db.query(`
-            SELECT "visitCount" FROM urls
-            WHERE "shortUrl" = $1
-        ;`, [shortUrl]);
-
-        const currentVisitCount = result.rows[0].visitCount;
-
-        const updatedVisitCount = currentVisitCount + 1;
 
         await db.query(`
-            UPDATE urls 
-            SET "visitCount" = $1
-            WHERE "shortUrl" = $2
-        ;`, [updatedVisitCount, shortUrl]);
+            UPDATE urls
+            SET "visitCount" = "visitCount" + 1
+            WHERE id = $1;
+        `, [getUrl.id]);
 
         res.redirect(getUrl.url);
     } catch (err) {
