@@ -5,7 +5,7 @@ import router from "./routes/index.routes.js";
 const app = express();
 
 const corsOptions = {
-    origin: "localhost:3000"
+    origin: "http://localhost:3000"
 };
 
 app.use(cors(corsOptions));
