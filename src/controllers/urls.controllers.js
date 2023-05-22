@@ -51,13 +51,16 @@ export async function getAndOpenUrls(req, res) {
 
     try {
 
-        await db.query(`
+        const result = await db.query(`
         UPDATE urls 
             SET "visitCount" = "visitCount" + 1
             WHERE "shortUrl" = $1
+        RETURNING "visitCount"
         ;`, [shortUrl]);
 
-        getUrl.visitCount += 1
+        const updatedVisitCount = result.rows[0].visitCount + 1;
+
+        getUrl.visitCount = updatedVisitCount;
 
         res.redirect(getUrl.url);
     } catch (err) {
